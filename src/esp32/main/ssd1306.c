@@ -293,8 +293,8 @@ esp_err_t i2c_ssd1306_buffer_text(i2c_ssd1306_handle_t *i2c_ssd1306, uint8_t x, 
 {
     if (x >= i2c_ssd1306->width || y >= i2c_ssd1306->height || !text || strlen(text) == 0)
     {
-        ESP_LOGE(SSD1306_TAG, "Invalid text or coordinates: x=%d (max %d), y=%d (max %d)", x, i2c_ssd1306->width - 1, y, i2c_ssd1306->height - 1);
-        return ESP_ERR_INVALID_ARG;
+        //ESP_LOGE(SSD1306_TAG, "Invalid text or coordinates: x=%d (max %d), y=%d (max %d)", x, i2c_ssd1306->width - 1, y, i2c_ssd1306->height - 1);
+        //return ESP_ERR_INVALID_ARG;
     }
 
     uint8_t len = strlen(text);
@@ -371,8 +371,8 @@ esp_err_t i2c_ssd1306_buffer_image(i2c_ssd1306_handle_t *i2c_ssd1306, uint8_t x,
 {
     if (image == NULL || img_width == 0 || img_height == 0 || x >= i2c_ssd1306->width || y >= i2c_ssd1306->height)
     {
-        ESP_LOGE(SSD1306_TAG, "Invalid image or coordinates: x=%d (max %d), y=%d (max %d)", x, i2c_ssd1306->width - 1, y, i2c_ssd1306->height - 1);
-        return ESP_ERR_INVALID_ARG;
+        //ESP_LOGE(SSD1306_TAG, "Invalid image or coordinates: x=%d (max %d), y=%d (max %d)", x, i2c_ssd1306->width - 1, y, i2c_ssd1306->height - 1);
+        //return ESP_ERR_INVALID_ARG;
     }
 
     uint8_t draw_width = (img_width < (i2c_ssd1306->width - x)) ? img_width : (i2c_ssd1306->width - x);
@@ -385,11 +385,11 @@ esp_err_t i2c_ssd1306_buffer_image(i2c_ssd1306_handle_t *i2c_ssd1306, uint8_t x,
 
     if (img_height > draw_height)
     {
-        ESP_LOGW(SSD1306_TAG, "Vertical truncation: Lost %d rows", img_height - draw_height);
+        //ESP_LOGW(SSD1306_TAG, "Vertical truncation: Lost %d rows", img_height - draw_height);
     }
     if (draw_width < img_width)
     {
-        ESP_LOGW(SSD1306_TAG, "Horizontal truncation: Lost %d columns", img_width - draw_width);
+        //ESP_LOGW(SSD1306_TAG, "Horizontal truncation: Lost %d columns", img_width - draw_width);
     }
 
     for (uint8_t col = 0; col < draw_width; col++)
