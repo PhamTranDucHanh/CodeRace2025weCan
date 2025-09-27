@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "esp_log.h": "c",
+        "ssd1306.h": "c",
+        "task.h": "c",
+        "twai.h": "c",
+        "gpio.h": "c",
+        "bitset": "c",
+        "string": "c",
+        "string_view": "c",
+        "fstream": "c",
+        "iomanip": "c",
+        "istream": "c",
+        "ostream": "c",
+        "sstream": "c",
+        "stdexcept": "c",
+        "system_error": "c",
+        "regex": "c",
+        "typeinfo": "c",
+        "variant": "c",
+        "chrono": "c",
+        "format": "c",
+        "oled_display.h": "c"
+    }
+}
