@@ -1,3 +1,10 @@
+/*
+ * File Name: fsm.c
+ * Author: Pham Tran Duc Hanh
+ * Created on: Tue Sep 30 2025
+ *
+ */
+
 #include "fsm.h"
 
 

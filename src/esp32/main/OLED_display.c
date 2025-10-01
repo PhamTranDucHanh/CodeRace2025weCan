@@ -1,3 +1,9 @@
+/*
+ * File Name: OLED_display.c
+ * Author: Pham Tran Duc Hanh
+ * Created on: Tue Sep 30 2025
+ *
+ */
 
 #include "OLED_display.h"
 void display_infor();

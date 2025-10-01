@@ -1,3 +1,10 @@
+/*
+ * File Name: can_handler.c
+ * Author: Pham Tran Duc Hanh
+ * Created on: Tue Sep 30 2025
+ *
+ */
+
 #include "can_handler.h"
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01) 
