@@ -11,6 +11,8 @@
 #include "fsm.h"
 
 typedef enum {
+  INIT,
+  ERROR,
   START_UP,
   ENGAGE_P_BRAKE_S,
   RELEASE_P_BRAKE,

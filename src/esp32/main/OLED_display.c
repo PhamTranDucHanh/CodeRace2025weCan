@@ -37,6 +37,11 @@ void oled_display(){
 
 void display_state(CarState state){
     switch (state){
+        case ERROR:
+            strcpy(line3, "Error");
+            strcpy(line4, "Undefined actions");
+            strcpy(line5, "Restart after 5s");
+            break;
         case START_UP:
             strcpy(line3, "Safety");
             strcpy(line4, "");

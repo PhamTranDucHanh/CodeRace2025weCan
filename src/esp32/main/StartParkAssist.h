@@ -19,5 +19,6 @@
 #include "OLED_display.h"
 #include <string.h>
 #include "fsm.h"
+#include "esp_task_wdt.h"
 
 //#define Monitor_Debugging

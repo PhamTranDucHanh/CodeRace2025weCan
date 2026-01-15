@@ -5,16 +5,38 @@
  *
  */
 
+
 #include "fsm.h"
 
 
-CarState currentState = START_UP;
+CarState currentState = INIT;
 
 void fsm_run()
 {
-    while (1){
+    // Đăng ký task FSM với watchdog
+    esp_task_wdt_add(NULL);
+
+    while (1) {
         switch (currentState)
         {
+            case INIT:
+                if (getGear() == P && getpBrakeOn() && getEngineOn()) currentState = START_UP;
+                if (getGear() == P && ! getpBrakeOn() && getEngineOn()) currentState = ENGAGE_P_BRAKE_S;
+                if (getGear() != P && getpBrakeOn() && getEngineOn()) currentState = RELEASE_P_BRAKE;
+                if (getGear() != P && ! getpBrakeOn() && getEngineOn()) currentState = DRIVING;
+                if (getGear() != P && ! getpBrakeOn() && ! getEngineOn() && ! getBrakeOn()) currentState = ROLL_AWAY;
+                if (getGear() != P && ! getpBrakeOn() && ! getEngineOn() && getBrakeOn()) currentState = PULL_OVER_SAFELY;
+                if (getGear() == P && ! getpBrakeOn() && ! getEngineOn()) currentState = ENGAGE_P_BRAKE_P;
+                if (getGear() != P && getpBrakeOn() && ! getEngineOn()) currentState = SHIFT_TO_P;
+                if (getGear() == P && getpBrakeOn() && ! getEngineOn()) currentState = PARK_CORRECTLY;
+
+                if (currentState == INIT) currentState = ERROR;
+                break;
+            case ERROR:
+                display_state(ERROR);           // Hiển thị thông báo lỗi lên OLED
+                vTaskDelay(pdMS_TO_TICKS(3000)); 
+                esp_restart();                  // Reset lại ESP32
+                break;
             case START_UP:
                 display_state (START_UP);
 
@@ -72,7 +94,12 @@ void fsm_run()
                 if (! getEngineOn()) currentState = ROLL_AWAY;
                 break;
             default:
+                currentState = INIT;
                 break;
         }
-    }  
+
+        // Feed watchdog sau mỗi chu kỳ xử lý logic
+        esp_task_wdt_reset();
+        vTaskDelay(pdMS_TO_TICKS(10)); // Nghỉ ngắn để tránh chiếm CPU 100%
+    }
 }

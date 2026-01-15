@@ -28,7 +28,16 @@ byte colPins[COLS] = {7, 8, 9, A0};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 // Mảng lưu trạng thái các nút ấn: từ '0' đến '6'
+
 bool bitState[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+// Biến toggle trạng thái động cơ
+bool engineOn = false;
+bool prevBitState4 = false;
+// Toggle cho phanh áp suất (bit 5) và phanh tay (bit 6)
+bool brakePressureOn = false;
+bool prevBitState5 = false;
+bool handbrakeReleased = false;
+bool prevBitState6 = false;
 
 void setup() {
   Serial.begin(9600);
@@ -85,13 +94,30 @@ void loop() {
     Serial.println("Error sending CVT_191");
   }
 
+
   // ====== 2. ENG_17C — Trạng thái động cơ và phanh chân ======
   engMsg.can_id  = 0x17C;
   engMsg.can_dlc = 8;
   for (int i = 0; i < 8; i++) engMsg.data[i] = 0x00;
 
+  // Toggle engineOn khi phát hiện cạnh lên của bitState[4]
+  if (bitState[4] && !prevBitState4) {
+    engineOn = !engineOn;
+  }
+  prevBitState4 = bitState[4];
+  // Toggle brakePressureOn khi phát hiện cạnh lên của bitState[5]
+  if (bitState[5] && !prevBitState5) {
+    brakePressureOn = !brakePressureOn;
+  }
+  prevBitState5 = bitState[5];
+  // Toggle handbrakeReleased khi phát hiện cạnh lên của bitState[6]
+  if (bitState[6] && !prevBitState6) {
+    handbrakeReleased = !handbrakeReleased;
+  }
+  prevBitState6 = bitState[6];
+
   // Bit 16–31 → vòng tua máy (RPM)
-  if (bitState[4]) {
+  if (engineOn) {
     engMsg.data[2] = 0x05;
     engMsg.data[3] = 0x21;   // ~1313 RPM khi "bật máy"
   } else {
@@ -124,8 +150,8 @@ void loop() {
   memset(meterMsg.data, 0, 8);
   // Bit 2 (byte 0) = 1 mặc định (phanh tay đang kéo)
   meterMsg.data[0] |= (1 << 2);
-  // Nếu nhấn nút 6 (bitState[6]): thả phanh tay → bit 2 = 0
-  if (bitState[6]) {
+  // Nếu handbrakeReleased (toggle): thả phanh tay → bit 2 = 0
+  if (handbrakeReleased) {
     meterMsg.data[0] &= ~(1 << 2);
   }
   if (mcp2515.sendMessage(&meterMsg) == MCP2515::ERROR_OK) {
@@ -142,13 +168,14 @@ void loop() {
     Serial.println("Error sending METER_1A6");
   }
 
+
   //====== 4.VSA_1A4 - Áp suất bàn đạp phanh =====    
   vsaMsg.can_id  = 0x1A4;
   vsaMsg.can_dlc = 8;
   for (int i = 0; i < 8; i++) vsaMsg.data[i] = 0x00;
 
   uint16_t rawPressure;
-  if (bitState[5]) {
+  if (brakePressureOn) {
     rawPressure = (uint16_t)((407 + 2443.92) / 23.96); // 0x00 77 = dx 119
     Serial.print("Gửi phanh áp suất cao (đang đạp): ");
   } else {

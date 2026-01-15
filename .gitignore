@@ -1,2 +1,5 @@
 src/esp32/build/
+src/esp32/sdkconfig
+src/esp32/sdkconfig.old
+src/esp32/.vscode/
 .vscode

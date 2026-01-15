@@ -6,11 +6,21 @@
  */
 
 #include "StartParkAssist.h"
+
+
 #define TAG "CAN_TASK"
 
 void app_main(void)
 {
     can_init();
+
+    // Khởi tạo Task Watchdog với timeout 3 giây, enable panic handler
+    esp_task_wdt_config_t twdt_config = {
+    .timeout_ms = 3000,
+    .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,
+    .trigger_panic = true
+    };
+    esp_task_wdt_init(&twdt_config);
 
     xTaskCreate(can_handler, "can_task", 4096, NULL, 12, NULL);
     xTaskCreate(oled_display, "oled_task", 4096, NULL, 9, NULL);
