@@ -1,46 +1,50 @@
-# weCAN-SupportSystem
+## MONITORING STARTUP AND PARKING PROCEDURES FOR NEW DRIVERS (CodeRace Challenge 2025 - BGSV)
 
-Dự án hỗ trợ người lái xe bằng hệ thống đọc dữ liệu CAN.
+## Introduction
+This project implements a support system for monitoring startup and parking procedures for new drivers, based on decoding and analyzing CAN bus signals from a vehicle. The system continuously reads CAN messages, decodes key parameters (gear position, engine status, brake states, etc.), and determines the current operational state of the vehicle. It then displays real-time warnings and status information to the driver, helping ensure safe and correct operation - especially for beginners.
 
-## Cấu trúc thư mục
+Compared to the Code Race 2025 version (which used Arduino for both simulation and main processing), this upgraded system uses an ESP32 microcontroller as the main processor. The ESP32 code is developed on the ESP-IDF framework and organized using an RTOS (FreeRTOS) architecture. State detection and transitions are managed by a dedicated state machine task, improving reliability and responsiveness. The Arduino is still used as a CAN signal simulator for testing and demonstration.
+
+## Repository Structure
 
 ```
-Parking Assistance/ 
+CodeRace2025weCan/
 │
-├── docs/                     # Tài liệu
-│   ├── architecture/         # Sơ đồ hệ thống, kiến trúc phần cứng/phần mềm
-│   ├── images/               # Hình ảnh demo, sản phẩm, PCB
-│   ├── videos/               # Link/video demo (gif/mp4)
-│   └── reports/              # Báo cáo, slide thuyết trình
+├── docs/                     
+│   ├── images/
+|   ├── reports/                
+│   └── README.md
 │
-├── src/                 # Code nhúng chính
-│   ├── arduino/              # Code Arduino Mega + MCP2515
-│   ├── stm32/                # Code STM32 (CubeIDE hoặc Keil project)
-│   └── esp32/                # Code ESP32 (PlatformIO / Arduino framework)
+├── signal_simulate/             # Source code for CAN signals simulations (Arduino)
+|   ├── README.md
+│   └── signal_simulate.ino
 │
-├── simulation/                # proteus
-│   ├── arduino-test/         # Test gửi/nhận CAN signal bằng Arduino
-│   ├── stm32-test/           # Test riêng cho STM32
-│   └── esp32-test/           # Test kết nối WiFi/MQTT, debug CAN <-> WebApp
+├── src/                         # Main source code for ESP32 using IDF framework, organized with RTOS (FreeRTOS) architecture
+│   ├── CMakeLists.txt
+│   ├── README.md
+│   ├── sdkconfig
+│   ├── sdkconfig.old
+│   ├── main/
+│   │   ├── can_handler.c        # RTOS task: handles incoming CAN signals and updates system state
+│   │   ├── can_handler.h
+│   │   ├── fsm.c                # RTOS task: runs the warning state machine based on CAN signals for display
+│   │   ├── fsm.h
+│   │   ├── OLED_display.c       # RTOS task: displays system and warning info on the OLED screen
+│   │   ├── OLED_display.h
+│   │   ├── ssd1306_const.h
+│   │   ├── ssd1306.c
+│   │   ├── ssd1306.h
+│   │   ├── StartParkAssist.c    # Entry point: initializes and adds RTOS tasks (CAN, OLED, FSM) to the system
+│   │   ├── StartParkAssist.h
+│   │   └── CMakeLists.txt
+│   └── .vscode/
 │
-├── webapp/                   # Web application hiển thị & xử lý
-│   ├── backend/              # Node.js/Python (xử lý dữ liệu từ ESP32/MQTT)
-│   └── frontend/             # React/Next.js (dashboard HMI)
-│
-├── hardware/                 # Tài liệu phần cứng
-│   ├── schematics/           # Sơ đồ mạch
-│   └── pcb/                  # PCB design (KiCad/Altium)
-│
-├── tests/                    # Unit test / Integration test cho code nhúng
-│
-├── LICENSE                   # License MIT/GPL rõ ràng
-├── README.md                 # Giới thiệu chính, nổi bật
-├── CONTRIBUTING.md           # Hướng dẫn đóng góp (nếu public)
-└── .gitignore
+├── .vscode/ 
+├── .gitignore
+├── .gitattributes
+└── README.md
 ```
 
 
-## Cách chạy thử
-(Hướng dẫn chạy code hoặc build)
 
 
