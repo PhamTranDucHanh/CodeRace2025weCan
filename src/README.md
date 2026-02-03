@@ -1,31 +1,36 @@
-Thư mục `src` chứa toàn bộ mã nguồn chính của dự án **weCAN – Support System for Monitoring Startup and Parking Procedures for New Drivers Based on CAN Signals**.
+# Main Source Code Overview (src)
 
-## Nội dung
+This folder contains the core source code for the project, implemented on the ESP32 microcontroller using the ESP-IDF framework and FreeRTOS architecture. The code is designed for robust, real-time operation in automotive environments, focusing on safety and reliability.
 
-- **Xử lý tín hiệu CAN**: đọc dữ liệu từ bus CAN thông qua MCP2515 và vi điều khiển.
-- **Giao diện hiển thị**: màn hình OLED / LCD hoặc dashboard trên web để trực quan hóa thông tin cho người lái.
-- **Thuật toán hỗ trợ người lái**: cảnh báo, hướng dẫn thao tác khởi động và dừng đỗ xe an toàn.
+## System Architecture
 
-## Cấu trúc mã nguồn
+- **Platform:** ESP32 (ESP-IDF, FreeRTOS)
+- **CAN Handling:** Utilizes the official TWAI library for CAN bus communication, ensuring compatibility and stability.
+- **Task Structure:** The system is organized into multiple FreeRTOS tasks:
+	- **CAN Handler Task:** Continuously receives and decodes CAN messages, updating global state variables (gear, engine, brakes, etc.).
+	- **State Machine Task:** Implements a strict state machine to determine the current operational and warning state of the vehicle, based on decoded CAN data.
+	- **OLED Display Task:** Updates the OLED screen in real time to show current status and warnings to the driver.
 
-Dự án được phát triển và mở rộng trên **3 dòng vi điều khiển chính**:
+## Main Workflow
 
-1. **Arduino (Arduino Mega/Uno)**  
-   - Code chính: đọc tín hiệu CAN từ MCP2515, xử lý logic, hiển thị cảnh báo trên màn hình OLED.(Reader)  
-   - Code giả lập: sử dụng **Arduino Nano + MCP2515** để gửi thử nghiệm các tín hiệu CAN mô phỏng (ví dụ: số P/R/N/D/S, trạng thái phanh, trạng thái động cơ). (Writer)
+1. **Initialization:**
+	 - The system initializes the CAN driver (TWAI), configures the hardware watchdog timer, and creates all main tasks.
+2. **CAN Processing:**
+	 - The CAN handler task listens for messages, decodes them according to the protocol used in the CodeRace2025 demo vehicle, and updates system state.
+3. **State Management:**
+	 - The state machine task evaluates the current state (gear, engine, brakes, etc.) and transitions between well-defined states (e.g., START_UP, DRIVING, PARK_CORRECTLY, ERROR, etc.).
+	 - All state logic is centralized for clarity and safety. An explicit ERROR state is included to catch undefined or unexpected conditions, allowing the system to reset or recover safely.
+4. **Display:**
+	 - The OLED display task presents the current state and any warnings to the driver in real time.
 
-2. **STM32 (Bluepill – STM32F103C8T6)**  
-   - Code chính: lập trình trên STM32 (CubeIDE), xử lý CAN trực tiếp bằng CAN peripheral hoặc qua MCP2515. (Reader) 
-   - Code giả lập: luôn dùng **Arduino Nano + MCP2515** để phát tín hiệu CAN giả lập phục vụ test.(Writer)
+## Safety and Reliability
 
-3. **ESP32**  
-   - Code chính: đọc/ghi tín hiệu CAN, xử lý logic và truyền dữ liệu qua WiFi/MQTT để hiển thị trên Web App. (Reader) 
-   - Code giả lập: vẫn dùng **Arduino Nano + MCP2515** để mô phỏng các tín hiệu CAN cần thiết. (Writer)
+- **Watchdog Timer:**
+	- A hardware watchdog timer is configured and fed by all main tasks to prevent system hangs. If any task fails or the system becomes unresponsive, the watchdog will trigger a safe reset.
+- **Error Handling:**
+	- The state machine includes a dedicated ERROR state to handle undefined or abnormal conditions, ensuring the system can always return to a safe state.
 
-## Lưu ý
-- Mỗi cụm vi điều khiển sẽ có **2 phần code**:  
-  - **Main**: xử lý & hiển thị.  
-  - **Simulator**: Arduino Nano + MCP2515 dùng để giả lập tín hiệu CAN test.  
-- Việc tách rõ code chính và code giả lập giúp dễ dàng kiểm thử, demo và mở rộng hệ thống.
+## Code References
 
----
+- Some functions and libraries in this project are adapted and improved from open-source resources. For original sources and credits, see:
+	- [voidlooprobotech / ESP32_ESP-IDF_Code/15_SSD1306_ESP32](<https://github.com/voidlooprobotech/ESP32_ESP-IDF_Code/tree/main/15_SSD1306_ESP32>)
