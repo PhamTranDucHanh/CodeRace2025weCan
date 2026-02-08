@@ -59,6 +59,7 @@ void fsm_run()
                 display_state (PULL_OVER_SAFELY);
 
                 if (getEngineOn()) currentState = DRIVING;
+                if (! getBrakeOn()) currentState = ROLL_AWAY;
                 break;
             case ROLL_AWAY:
                 display_state (ROLL_AWAY);
